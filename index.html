@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>たまぺーす</title>
+<meta name="description" content="きょうの、ひとつだけ。やさしい1日サポート">
+
+<meta name="theme-color" content="#EAF3F8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="たまぺーす">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=DotGothic16&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#EAF3F8; --card:#FFFFFF; --ink:#46535E; --muted:#90A9B8;
+    --aqua:#7FB8D4; --aqua-deep:#6FB3CE; --aqua-soft:#DCEEF6; --line:#DCE8EF;
+    --rest-bg:#EEF1F8; --rest-ink:#9090B6; --soft:#EDF3F6;
+    --sun:#F5C84B; --calm:#9FB6D6; --rest:#B9ACCB; --green:#8FBF8A;
+    --radius:16px;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Zen Maru Gothic', system-ui, -apple-system, sans-serif;
+    line-height:1.7; min-height:100vh;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{ max-width:460px; margin:0 auto; padding:18px 16px 40px; }
+  .pix{ font-family:'DotGothic16', monospace; }
+
+  header{ text-align:center; position:relative; }
+  h1{ font-size:22px; font-weight:700; margin:2px 0 0; }
+  .sub{ font-size:12px; color:var(--muted); margin:0; }
+  .reselect{
+    position:absolute; right:0; top:0; border:none; background:var(--card);
+    color:var(--muted); font-size:11px; padding:6px 11px; border-radius:20px;
+    font-family:'DotGothic16', monospace; cursor:pointer;
+  }
+  .reselect:hover{ color:var(--ink); }
+  .reselect[hidden]{ display:none; }
+
+  .hero{ display:flex; flex-direction:column; align-items:center; margin:14px 0 6px; }
+  .bubble{
+    background:var(--card); border-radius:14px; padding:9px 16px; font-size:13px;
+    max-width:88%; text-align:center; box-shadow:0 1px 0 rgba(0,0,0,0.04);
+  }
+  .cat{ margin-top:4px; }
+  .cat svg{ display:block; width:96px; height:96px; }
+  .hearts{ margin-top:2px; letter-spacing:2px; font-size:13px; }
+  .hearts span{ filter:grayscale(1); opacity:.3; }
+  .hearts span.on{ filter:none; opacity:1; }
+  .stage{ font-size:11px; color:var(--aqua-deep); margin-top:1px; }
+
+  .bounce{ animation:bob 2.4s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+
+  .energy{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:14px 0; }
+  .energy button{
+    background:var(--card); border:2px solid var(--line); border-radius:14px;
+    padding:11px 0; cursor:pointer; font-family:inherit; color:var(--ink);
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+  }
+  .energy button .emo{ font-size:22px; }
+  .energy button .lab{ font-size:11px; }
+  .energy button[aria-pressed="true"]{ border-color:var(--aqua); background:var(--aqua-soft); }
+  .energy button[aria-pressed="true"] .lab{ font-weight:700; }
+
+  .card{ background:var(--card); border-radius:var(--radius); padding:16px; margin:12px 0; }
+  .kicker{ font-family:'DotGothic16', monospace; font-size:11px; color:var(--muted); }
+  .task-text{ font-size:18px; font-weight:700; margin:8px 0 14px; }
+  .actions{ display:flex; gap:7px; }
+  .btn{ border:none; border-radius:12px; font-family:inherit; cursor:pointer; padding:11px 0; font-size:13px; }
+  .btn-did{ flex:1; background:var(--aqua-deep); color:#fff; font-weight:700; }
+  .btn-did:active{ transform:scale(.98); }
+  .btn-sub{ background:var(--soft); color:#5E7180; padding:11px 14px; }
+
+  .rest{ background:var(--rest-bg); }
+  .rest .kicker{ color:var(--rest-ink); }
+  .rest-note{ font-size:12px; color:var(--rest-ink); text-align:center; margin:4px 0 10px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:7px; justify-content:center; }
+  .chips button{
+    background:#fff; border:none; border-radius:20px; padding:8px 14px; font-size:13px;
+    font-family:inherit; color:var(--ink); cursor:pointer;
+  }
+  .chips button.done{ background:var(--aqua-soft); color:var(--aqua-deep); }
+
+  .done-list{ list-style:none; padding:0; margin:8px 0 0; font-size:14px; }
+  .done-list li{ display:flex; gap:8px; padding:3px 0; }
+  .done-list li .ck{ color:var(--aqua-deep); }
+  .empty{ font-size:13px; color:var(--muted); }
+
+  .dots{ display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+  .dot{ width:14px; height:14px; border-radius:4px; background:var(--line); }
+  .dot.today{ outline:2px solid var(--aqua-deep); outline-offset:1px; }
+  .legend{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; font-size:11px; color:var(--muted); }
+  .legend i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+
+  .add{ display:flex; gap:8px; margin-top:8px; }
+  .add input{
+    flex:1; border:2px solid var(--line); border-radius:12px; padding:10px 12px;
+    font-family:inherit; font-size:14px; color:var(--ink); background:#fff;
+  }
+  .add input:focus{ outline:none; border-color:var(--aqua); }
+  .add button{
+    border:none; background:var(--aqua-soft); color:var(--aqua-deep); border-radius:12px;
+    padding:0 16px; font-family:inherit; font-weight:700; cursor:pointer;
+  }
+  .added-note{ font-size:11px; color:var(--muted); margin-top:6px; }
+
+  button:focus-visible, .chips button:focus-visible{ outline:3px solid var(--aqua); outline-offset:2px; }
+  [hidden]{ display:none !important; }
+  footer{ text-align:center; font-size:11px; color:var(--muted); margin-top:22px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .bounce{ animation:none; }
+    .btn-did:active{ transform:none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <button class="reselect" id="reselect" hidden>きぶんを えらびなおす</button>
+    <h1>たまぺーす</h1>
+    <p class="sub">きょうの、ひとつだけ。</p>
+  </header>
+
+  <div class="hero">
+    <div class="bubble" id="bubble">きょうは どんな かんじ？</div>
+    <div class="cat bounce" id="cat" aria-hidden="true"></div>
+    <div class="hearts" id="hearts"></div>
+    <div class="stage pix" id="stage"></div>
+  </div>
+
+  <section id="energy-sec">
+    <div class="kicker" style="text-align:center;">いまの エネルギーは？</div>
+    <div class="energy" id="energy"></div>
+  </section>
+
+  <section id="one-sec" hidden>
+    <div class="card">
+      <div class="kicker">きょうの ひとつ</div>
+      <div class="task-text" id="task-text">―</div>
+      <div class="actions">
+        <button class="btn btn-did" id="did">やった！</button>
+        <button class="btn btn-sub" id="another">べつのを見る</button>
+        <button class="btn btn-sub" id="skip">やめておく</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="enough-sec" hidden>
+    <div class="card">
+      <div class="kicker">きょうは じゅうぶん</div>
+      <div class="task-text" style="font-size:15px;">きょうは もう十分。のこりは あした で いいよ。</div>
+      <div class="actions">
+        <button class="btn btn-sub" id="more" style="flex:1;">それでも もうひとつ見る</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="rest-sec" hidden>
+    <div class="card rest">
+      <div class="kicker">おやすみ DAY</div>
+      <p class="rest-note">きょうは やすむ日。それで えらい。<br>きが むいたら、これだけでもOK（ぜんぶ やらなくていい）</p>
+      <div class="chips" id="rest-chips"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker">きょう できたこと</div>
+    <ul class="done-list" id="done-list"></ul>
+  </section>
+
+  <section class="card">
+    <div class="kicker">このごろの ちょうし（14日）</div>
+    <div class="dots" id="dots"></div>
+    <div class="legend">
+      <span><i style="background:var(--sun)"></i>げんき</span>
+      <span><i style="background:var(--aqua)"></i>ふつう</span>
+      <span><i style="background:var(--calm)"></i>しんどい</span>
+      <span><i style="background:var(--rest)"></i>やすんだ</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="kicker">じぶんの やることを 足す</div>
+    <div class="add">
+      <input id="add-input" type="text" maxlength="40" placeholder="れい：すきな本を1ページ" aria-label="やることを追加">
+      <button id="add-btn">足す</button>
+    </div>
+    <div class="added-note">かるい「すき」として、しんどい日にも出ます。</div>
+  </section>
+
+  <footer>たまぺーす ・ いるだけで100点</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   ▼▼▼ たまの絵は、ここ（catArt）だけ差し替えればOK ▼▼▼
+   本物のたま画像（PNG/SVG）に変えるときは：
+   1) 画像ファイルをこのフォルダに置く（例：tama_sit.png / tama_sleep.png）
+   2) 下の TAMA_IMAGE を { sit:'tama_sit.png', sleep:'tama_sleep.png' } にする
+   → SVGの代わりに画像が表示されます。SVGのままでも動きます。
+   ============================================================ */
+const TAMA_IMAGE = null; // 例: { sit:'tama_sit.png', sleep:'tama_sleep.png' }
+
+function catArt(mode){ // mode: 'sit' | 'sleep'
+  if(TAMA_IMAGE && TAMA_IMAGE[mode]){
+    return '<img src="'+TAMA_IMAGE[mode]+'" alt="" style="width:96px;height:96px;object-fit:contain;">';
+  }
+  if(mode === 'sleep'){
+    return '<svg viewBox="0 0 78 54" role="img"><title>眠るたま</title>'
+      +'<ellipse cx="40" cy="36" rx="28" ry="15" fill="#34343C"/>'
+      +'<path d="M64 36 q4 -12 -14 -13" stroke="#2B2B33" stroke-width="6" fill="none" stroke-linecap="round"/>'
+      +'<circle cx="24" cy="32" r="12" fill="#34343C"/>'
+      +'<polygon points="15,24 17,13 24,22" fill="#34343C"/>'
+      +'<polygon points="33,24 31,13 24,22" fill="#34343C"/>'
+      +'<polygon points="17,22 18,16 22,22" fill="#E79BB0"/>'
+      +'<path d="M17 33 q3 3 6 0" stroke="#C9CDD6" stroke-width="1.4" fill="none"/>'
+      +'<path d="M25 33 q3 3 6 0" stroke="#C9CDD6" stroke-width="1.4" fill="none"/>'
+      +'<polygon points="24,35 22,37 26,37" fill="#E79BB0"/>'
+      +'<text x="50" y="16" font-size="9" fill="#A6A6C4" font-family="DotGothic16">z z</text>'
+      +'</svg>';
+  }
+  return '<svg viewBox="0 0 64 64" role="img"><title>たま</title>'
+    +'<polygon points="18,22 23,9 31,21" fill="#34343C"/>'
+    +'<polygon points="46,22 41,9 33,21" fill="#34343C"/>'
+    +'<polygon points="21,20 23,13 27,20" fill="#E79BB0"/>'
+    +'<polygon points="43,20 41,13 37,20" fill="#E79BB0"/>'
+    +'<rect x="14" y="18" width="36" height="30" rx="15" fill="#34343C"/>'
+    +'<rect x="22" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/>'
+    +'<rect x="37" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/>'
+    +'<rect x="23.5" y="31" width="2" height="4" rx="1" fill="#3A3320"/>'
+    +'<rect x="38.5" y="31" width="2" height="4" rx="1" fill="#3A3320"/>'
+    +'<polygon points="32,38 30,40 34,40" fill="#E79BB0"/>'
+    +'<path d="M32 40 q-3 3 -5 1 M32 40 q3 3 5 1" stroke="#9AA0AC" stroke-width="1.2" fill="none"/>'
+    +'<line x1="9" y1="34" x2="19" y2="35" stroke="#D9E0E6" stroke-width="1"/>'
+    +'<line x1="9" y1="38" x2="19" y2="38" stroke="#D9E0E6" stroke-width="1"/>'
+    +'<line x1="55" y1="34" x2="45" y2="35" stroke="#D9E0E6" stroke-width="1"/>'
+    +'<line x1="55" y1="38" x2="45" y2="38" stroke="#D9E0E6" stroke-width="1"/>'
+    +'<rect x="22" y="46" width="20" height="11" rx="6" fill="#34343C"/>'
+    +'<rect x="25" y="52" width="5" height="5" rx="2" fill="#45454F"/>'
+    +'<rect x="34" y="52" width="5" height="5" rx="2" fill="#45454F"/>'
+    +'<path d="M42 50 q12 0 9 -10" stroke="#34343C" stroke-width="5" fill="none" stroke-linecap="round"/>'
+    +'</svg>';
+}
+
+/* ---------- データ定義 ---------- */
+const POOL = [
+  {id:'k1', text:'歯みがき・顔をあらう', w:1, kind:'kurashi'},
+  {id:'k2', text:'窓をあけて空気を入れる', w:1, kind:'kurashi'},
+  {id:'k3', text:'流せるブラシでトイレを1回', w:1, kind:'kurashi'},
+  {id:'k4', text:'フロアワイパーを1往復', w:1, kind:'kurashi'},
+  {id:'k5', text:'ごみをひとつ袋にまとめる', w:1, kind:'kurashi'},
+  {id:'k6', text:'レンジで何か食べる', w:1, kind:'kurashi'},
+  {id:'k7', text:'ネットスーパーで1品ポチる', w:1, kind:'kurashi'},
+  {id:'k8', text:'洗濯物をハンガーにかける', w:2, kind:'kurashi'},
+  {id:'k9', text:'シャワーをあびる', w:2, kind:'kurashi'},
+  {id:'s1', text:'家庭菜園に水やり', w:1, kind:'suki'},
+  {id:'s2', text:'たまを1コマ落書き', w:1, kind:'suki'},
+  {id:'s3', text:'ゲームを15分だけ', w:1, kind:'suki'},
+  {id:'s4', text:'好きな曲を1曲きく', w:1, kind:'suki'},
+  {id:'s5', text:'思ったことを1行メモ', w:1, kind:'suki'},
+  {id:'s6', text:'カフェか外でひと休み', w:2, kind:'suki'},
+  {id:'s7', text:'イラストをXに1枚出す', w:2, kind:'suki'},
+  {id:'s8', text:'散歩かストレッチでからだを動かす', w:2, kind:'suki'},
+  {id:'s9', text:'配信かスタンプのメモを少し', w:2, kind:'suki'},
+  {id:'s10', text:'今後のことを1行だけ書く', w:2, kind:'suki'},
+];
+
+const ENERGY = {
+  genki:    {label:'げんき',   emo:'😊', weights:[1,2], cap:5, color:'var(--sun)'},
+  futsuu:   {label:'ふつう',   emo:'🙂', weights:[1,2], cap:4, color:'var(--aqua)'},
+  shindoi:  {label:'しんどい', emo:'😔', weights:[1],   cap:2, color:'var(--calm)'},
+  ugokenai: {label:'うごけない', emo:'🛌', weights:[],  cap:0, color:'var(--rest)'},
+};
+const ENERGY_ORDER = ['genki','futsuu','shindoi','ugokenai'];
+
+const REST_CHOICES = ['水をのむ','ふとんでスマホでOK','窓をすこしあける','好きな曲をきく','深呼吸を3回'];
+
+const STAGES = [
+  {min:0,  name:'しらんぷり'},
+  {min:5,  name:'ちかづく'},
+  {min:13, name:'すりすり'},
+  {min:25, name:'ごろん'},
+  {min:40, name:'おなかみせ'},
+];
+
+const STORAGE_KEY = 'tamapace';
+
+/* ---------- 状態 ---------- */
+function todayStr(){
+  const d = new Date();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return d.getFullYear()+'-'+m+'-'+day;
+}
+
+function blankState(){
+  return {
+    version:1, date:todayStr(), energy:null, points:0,
+    doneToday:[], usedIds:[], restDone:[], customTasks:[], history:{}
+  };
+}
+
+let state = load();
+let currentTask = null;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return blankState();
+    const s = JSON.parse(raw);
+    return rollover(s);
+  }catch(e){ return blankState(); }
+}
+
+function rollover(s){
+  const t = todayStr();
+  if(s.date !== t){
+    // 日付がかわった：当日ぶんだけリセット。ポイントと履歴とマイタスクは残す
+    s.date = t;
+    s.energy = null;
+    s.doneToday = [];
+    s.usedIds = [];
+    s.restDone = [];
+  }
+  // 後方互換の保険
+  if(!s.customTasks) s.customTasks = [];
+  if(!s.history) s.history = {};
+  if(typeof s.points !== 'number') s.points = 0;
+  return s;
+}
+
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+
+/* ---------- ロジック ---------- */
+function allTasks(){ return POOL.concat(state.customTasks); }
+
+function eligible(){
+  const w = ENERGY[state.energy].weights;
+  if(w.length === 0) return [];
+  const used = new Set(state.usedIds);
+  return allTasks().filter(t => w.includes(t.w) && !used.has(t.id));
+}
+
+function pickTask(excludeId){
+  let elig = eligible();
+  if(excludeId && elig.length > 1) elig = elig.filter(t => t.id !== excludeId);
+  if(elig.length === 0) return null;
+  const suki = elig.filter(t => t.kind === 'suki');
+  const other = elig.filter(t => t.kind !== 'suki');
+  let pool;
+  if(suki.length && other.length){
+    pool = (Math.random() < 0.55) ? suki : other; // すきに寄せる（全部家事にしない）
+  }else{
+    pool = elig;
+  }
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function cap(){ return ENERGY[state.energy].cap; }
+function isEnough(){ return state.doneToday.length >= cap(); }
+
+function stageInfo(){
+  let idx = 0;
+  for(let i=0;i<STAGES.length;i++){ if(state.points >= STAGES[i].min) idx = i; }
+  return {idx, name:STAGES[idx].name};
+}
+
+/* ---------- 操作 ---------- */
+function chooseEnergy(key){
+  state.energy = key;
+  state.history[todayStr()] = key;
+  currentTask = (ENERGY[key].weights.length ? pickTask() : null);
+  save(); render();
+}
+
+function complete(){
+  if(!currentTask) return;
+  state.doneToday.push({text:currentTask.text, w:currentTask.w});
+  state.usedIds.push(currentTask.id);
+  state.points += currentTask.w;
+  const before = stageInfo().idx;
+  save();
+  const after = stageInfo().idx;
+  currentTask = isEnough() ? null : pickTask();
+  render();
+  celebrate(after > before);
+}
+
+function another(){ if(currentTask){ currentTask = pickTask(currentTask.id); render(); } }
+
+function skip(){
+  if(!currentTask) return;
+  state.usedIds.push(currentTask.id);
+  currentTask = pickTask();
+  save(); render();
+}
+
+let forceOne = false; // 「それでも もうひとつ見る」で一時的に1つ表示
+
+function toggleRest(name){
+  const i = state.restDone.indexOf(name);
+  if(i>=0) state.restDone.splice(i,1); else state.restDone.push(name);
+  save(); render();
+}
+
+function addCustom(){
+  const inp = document.getElementById('add-input');
+  const v = inp.value.trim();
+  if(!v) return;
+  const id = 'c'+Date.now();
+  state.customTasks.push({id, text:v, w:1, kind:'suki'});
+  inp.value = '';
+  save(); render();
+}
+
+function reselect(){ state.energy = null; currentTask = null; forceOne = false; save(); render(); }
+
+/* ---------- セリフ ---------- */
+function speech(){
+  if(!state.energy) return 'きょうは どんな かんじ？';
+  if(state.energy === 'ugokenai') return 'きょうは やすむ日。それで えらい。';
+  if(isEnough() && !forceOne) return 'きょうは もう十分。えらすぎる…！';
+  if(state.doneToday.length > 0) return 'いいかんじ。むりせず いこ〜';
+  return 'むりせず、ひとつだけ いこ〜';
+}
+
+let celebTimer = null;
+function celebrate(levelUp){
+  const b = document.getElementById('bubble');
+  b.textContent = levelUp ? 'なかよし度 アップ！うれしい〜' : 'やったね！えらい！';
+  clearTimeout(celebTimer);
+  celebTimer = setTimeout(()=>{ b.textContent = speech(); }, 1800);
+}
+
+/* ---------- 描画 ---------- */
+function render(){
+  // たま
+  const mode = (state.energy === 'ugokenai') ? 'sleep' : 'sit';
+  const catEl = document.getElementById('cat');
+  catEl.innerHTML = catArt(mode);
+
+  // セリフ
+  document.getElementById('bubble').textContent = speech();
+
+  // なかよし度（ハート5つ）
+  const st = stageInfo();
+  const hearts = document.getElementById('hearts');
+  hearts.innerHTML = [0,1,2,3,4].map(i =>
+    '<span class="'+(i<=st.idx?'on':'')+'">🐾</span>').join('');
+  document.getElementById('stage').textContent = 'たまとの なかよし：'+st.name;
+
+  // えらびなおすボタン
+  document.getElementById('reselect').hidden = !state.energy;
+
+  // エネルギー選択
+  const energySec = document.getElementById('energy-sec');
+  const energyBox = document.getElementById('energy');
+  if(!energyBox.dataset.built){
+    energyBox.innerHTML = ENERGY_ORDER.map(k =>
+      '<button data-k="'+k+'"><span class="emo">'+ENERGY[k].emo+'</span>'
+      +'<span class="lab">'+ENERGY[k].label+'</span></button>').join('');
+    energyBox.dataset.built = '1';
+    energyBox.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=> chooseEnergy(btn.dataset.k));
+    });
+  }
+  energyBox.querySelectorAll('button').forEach(btn=>{
+    btn.setAttribute('aria-pressed', String(btn.dataset.k === state.energy));
+  });
+  energySec.hidden = !!state.energy;
+
+  // メインカードの出し分け
+  const oneSec = document.getElementById('one-sec');
+  const enoughSec = document.getElementById('enough-sec');
+  const restSec = document.getElementById('rest-sec');
+  oneSec.hidden = true; enoughSec.hidden = true; restSec.hidden = true;
+
+  if(state.energy === 'ugokenai'){
+    restSec.hidden = false;
+    renderRest();
+  } else if(state.energy){
+    if(currentTask && (!isEnough() || forceOne)){
+      oneSec.hidden = false;
+      document.getElementById('task-text').textContent = currentTask.text;
+    } else if(isEnough()){
+      enoughSec.hidden = false;
+    } else {
+      // 候補ぎれ（全部やった/パスした）
+      enoughSec.hidden = false;
+      document.querySelector('#enough-sec .task-text').textContent =
+        'きょうの ぶんは ぜんぶ見たよ。よく やった！';
+    }
+  }
+
+  renderDone();
+  renderDots();
+}
+
+function renderRest(){
+  const box = document.getElementById('rest-chips');
+  box.innerHTML = '';
+  REST_CHOICES.forEach(name=>{
+    const b = document.createElement('button');
+    b.textContent = (state.restDone.includes(name)? '✓ ':'') + name;
+    if(state.restDone.includes(name)) b.className = 'done';
+    b.addEventListener('click', ()=> toggleRest(name));
+    box.appendChild(b);
+  });
+}
+
+function renderDone(){
+  const ul = document.getElementById('done-list');
+  const items = state.doneToday.slice();
+  if(state.energy === 'ugokenai') state.restDone.forEach(n=> items.push({text:n}));
+  if(items.length === 0){
+    ul.innerHTML = '<li class="empty">まだ なくても、いるだけで100点。</li>';
+    return;
+  }
+  ul.innerHTML = items.map(it =>
+    '<li><span class="ck">✓</span><span>'+escapeHtml(it.text)+'</span></li>').join('');
+}
+
+function renderDots(){
+  const box = document.getElementById('dots');
+  const colors = {genki:'var(--sun)', futsuu:'var(--aqua)', shindoi:'var(--calm)', ugokenai:'var(--rest)'};
+  const today = todayStr();
+  let html = '';
+  for(let i=13;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const e = state.history[key];
+    const col = e ? colors[e] : 'var(--line)';
+    html += '<span class="dot'+(key===today?' today':'')+'" style="background:'+col+'"></span>';
+  }
+  box.innerHTML = html;
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------- イベント ---------- */
+document.getElementById('did').addEventListener('click', complete);
+document.getElementById('another').addEventListener('click', another);
+document.getElementById('skip').addEventListener('click', skip);
+document.getElementById('more').addEventListener('click', ()=>{ forceOne = true; currentTask = pickTask(); render(); });
+document.getElementById('reselect').addEventListener('click', reselect);
+document.getElementById('add-btn').addEventListener('click', addCustom);
+document.getElementById('add-input').addEventListener('keydown', e=>{ if(e.key==='Enter') addCustom(); });
+
+render();
+
+/* ---------- PWA ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
