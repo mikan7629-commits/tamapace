@@ -215,25 +215,59 @@
    2) 下の TAMA_IMAGE を { sit:'tama_sit.png', sleep:'tama_sleep.png' } にする
    → SVGの代わりに画像が表示されます。SVGのままでも動きます。
    ============================================================ */
-const TAMA_IMAGE = null; // 例: { sit:'tama_sit.png', sleep:'tama_sleep.png' }
+const TAMA_IMAGE = null; // 例: { normal:'tama.png', happy:'tama_happy.png', tired:'tama_tired.png', sleep:'tama_sleep.png' }
 
-function catArt(mode){ // mode: 'sit' | 'sleep'
-  if(TAMA_IMAGE && TAMA_IMAGE[mode]){
-    return '<img src="'+TAMA_IMAGE[mode]+'" alt="" style="width:96px;height:96px;object-fit:contain;">';
+// 気分 mood: normal / happy / tired / proud / cheer / sleep
+function catArt(mood){
+  if(TAMA_IMAGE && (TAMA_IMAGE[mood] || TAMA_IMAGE.normal)){
+    return '<img src="'+(TAMA_IMAGE[mood]||TAMA_IMAGE.normal)+'" alt="" style="width:96px;height:96px;object-fit:contain;">';
   }
-  if(mode === 'sleep'){
-    return '<svg viewBox="0 0 78 54" role="img"><title>眠るたま</title>'
-      +'<ellipse cx="40" cy="36" rx="28" ry="15" fill="#34343C"/>'
-      +'<path d="M64 36 q4 -12 -14 -13" stroke="#2B2B33" stroke-width="6" fill="none" stroke-linecap="round"/>'
-      +'<circle cx="24" cy="32" r="12" fill="#34343C"/>'
-      +'<polygon points="15,24 17,13 24,22" fill="#34343C"/>'
-      +'<polygon points="33,24 31,13 24,22" fill="#34343C"/>'
-      +'<polygon points="17,22 18,16 22,22" fill="#E79BB0"/>'
-      +'<path d="M17 33 q3 3 6 0" stroke="#C9CDD6" stroke-width="1.4" fill="none"/>'
-      +'<path d="M25 33 q3 3 6 0" stroke="#C9CDD6" stroke-width="1.4" fill="none"/>'
-      +'<polygon points="24,35 22,37 26,37" fill="#E79BB0"/>'
-      +'<text x="50" y="16" font-size="9" fill="#A6A6C4" font-family="DotGothic16">z z</text>'
-      +'</svg>';
+  if(mood === 'sleep') return catSleep();
+  return catSit(mood);
+}
+
+function catSleep(){
+  return '<svg viewBox="0 0 78 54" role="img"><title>眠るたま</title>'
+    +'<ellipse cx="40" cy="36" rx="28" ry="15" fill="#34343C"/>'
+    +'<path d="M64 36 q4 -12 -14 -13" stroke="#2B2B33" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    +'<circle cx="24" cy="32" r="12" fill="#34343C"/>'
+    +'<polygon points="15,24 17,13 24,22" fill="#34343C"/>'
+    +'<polygon points="33,24 31,13 24,22" fill="#34343C"/>'
+    +'<polygon points="17,22 18,16 22,22" fill="#E79BB0"/>'
+    +'<path d="M17 33 q3 3 6 0" stroke="#C9CDD6" stroke-width="1.4" fill="none"/>'
+    +'<path d="M25 33 q3 3 6 0" stroke="#C9CDD6" stroke-width="1.4" fill="none"/>'
+    +'<polygon points="24,35 22,37 26,37" fill="#E79BB0"/>'
+    +'<text x="50" y="16" font-size="9" fill="#A6A6C4" font-family="DotGothic16">z z</text>'
+    +'</svg>';
+}
+
+function catSit(mood){
+  var eyes, mouth, extra = '';
+  if(mood === 'happy'){
+    eyes = '<circle cx="24.5" cy="32" r="3.4" fill="#F5C84B"/><circle cx="39.5" cy="32" r="3.4" fill="#F5C84B"/>'
+         + '<circle cx="24.5" cy="32.4" r="1.4" fill="#3A3320"/><circle cx="39.5" cy="32.4" r="1.4" fill="#3A3320"/>'
+         + '<circle cx="25.6" cy="30.8" r="0.9" fill="#fff"/><circle cx="40.6" cy="30.8" r="0.9" fill="#fff"/>';
+    mouth = '<path d="M28 40.5 q4 5 8 0" stroke="#9AA0AC" stroke-width="1.3" fill="none"/><path d="M30.6 43 q1.4 1.6 2.8 0" fill="#E79BB0"/>';
+    extra = '<text x="6" y="18" font-size="9" fill="#F5C84B" font-family="DotGothic16">✦</text><text x="53" y="15" font-size="7" fill="#F5C84B" font-family="DotGothic16">✦</text>';
+  } else if(mood === 'tired'){
+    eyes = '<rect x="22" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/><rect x="37" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/>'
+         + '<rect x="23.5" y="32" width="2" height="3" rx="1" fill="#3A3320"/><rect x="38.5" y="32" width="2" height="3" rx="1" fill="#3A3320"/>'
+         + '<rect x="21" y="28.5" width="7" height="3.6" fill="#34343C"/><rect x="36" y="28.5" width="7" height="3.6" fill="#34343C"/>'
+         + '<path d="M21.5 32.4 h6 M36.5 32.4 h6" stroke="#8A8A93" stroke-width="0.7"/>';
+    mouth = '<path d="M30 41.5 q2 1.4 4 0" stroke="#9AA0AC" stroke-width="1.1" fill="none"/>';
+  } else if(mood === 'proud' || mood === 'cheer'){
+    eyes = '<path d="M21.5 33 q3 -3.6 6 0" stroke="#F5C84B" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
+         + '<path d="M36.5 33 q3 -3.6 6 0" stroke="#F5C84B" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
+    mouth = '<path d="M28 40.5 q4 5 8 0" stroke="#9AA0AC" stroke-width="1.3" fill="none"/><path d="M30.6 43 q1.4 1.6 2.8 0" fill="#E79BB0"/>';
+    if(mood === 'cheer'){
+      extra = '<text x="5" y="16" font-size="9" fill="#F5C84B" font-family="DotGothic16">✦</text>'
+            + '<text x="54" y="15" font-size="8" fill="#F2A6B3" font-family="DotGothic16">♥</text>'
+            + '<text x="50" y="43" font-size="7" fill="#F5C84B" font-family="DotGothic16">✦</text>';
+    }
+  } else { // normal
+    eyes = '<rect x="22" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/><rect x="37" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/>'
+         + '<rect x="23.5" y="31" width="2" height="4" rx="1" fill="#3A3320"/><rect x="38.5" y="31" width="2" height="4" rx="1" fill="#3A3320"/>';
+    mouth = '<path d="M32 40 q-3 3 -5 1 M32 40 q3 3 5 1" stroke="#9AA0AC" stroke-width="1.2" fill="none"/>';
   }
   return '<svg viewBox="0 0 64 64" role="img"><title>たま</title>'
     +'<polygon points="18,22 23,9 31,21" fill="#34343C"/>'
@@ -241,12 +275,9 @@ function catArt(mode){ // mode: 'sit' | 'sleep'
     +'<polygon points="21,20 23,13 27,20" fill="#E79BB0"/>'
     +'<polygon points="43,20 41,13 37,20" fill="#E79BB0"/>'
     +'<rect x="14" y="18" width="36" height="30" rx="15" fill="#34343C"/>'
-    +'<rect x="22" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/>'
-    +'<rect x="37" y="29" width="5" height="7" rx="2.5" fill="#F5C84B"/>'
-    +'<rect x="23.5" y="31" width="2" height="4" rx="1" fill="#3A3320"/>'
-    +'<rect x="38.5" y="31" width="2" height="4" rx="1" fill="#3A3320"/>'
+    + eyes
     +'<polygon points="32,38 30,40 34,40" fill="#E79BB0"/>'
-    +'<path d="M32 40 q-3 3 -5 1 M32 40 q3 3 5 1" stroke="#9AA0AC" stroke-width="1.2" fill="none"/>'
+    + mouth
     +'<line x1="9" y1="34" x2="19" y2="35" stroke="#D9E0E6" stroke-width="1"/>'
     +'<line x1="9" y1="38" x2="19" y2="38" stroke="#D9E0E6" stroke-width="1"/>'
     +'<line x1="55" y1="34" x2="45" y2="35" stroke="#D9E0E6" stroke-width="1"/>'
@@ -255,6 +286,7 @@ function catArt(mode){ // mode: 'sit' | 'sleep'
     +'<rect x="25" y="52" width="5" height="5" rx="2" fill="#45454F"/>'
     +'<rect x="34" y="52" width="5" height="5" rx="2" fill="#45454F"/>'
     +'<path d="M42 50 q12 0 9 -10" stroke="#34343C" stroke-width="5" fill="none" stroke-linecap="round"/>'
+    + extra
     +'</svg>';
 }
 
@@ -431,6 +463,16 @@ function addCustom(){
 
 function reselect(){ state.energy = null; currentTask = null; forceOne = false; save(); render(); }
 
+/* ---------- たまの表情（気分） ---------- */
+function catMood(){
+  if(!state.energy) return 'normal';
+  if(state.energy === 'ugokenai') return 'sleep';
+  if(isEnough() && !forceOne) return 'proud';
+  if(state.energy === 'genki') return 'happy';
+  if(state.energy === 'shindoi') return 'tired';
+  return 'normal'; // ふつう
+}
+
 /* ---------- セリフ ---------- */
 function speech(){
   if(!state.energy) return 'きょうは どんな かんじ？';
@@ -444,16 +486,16 @@ let celebTimer = null;
 function celebrate(levelUp){
   const b = document.getElementById('bubble');
   b.textContent = levelUp ? 'なかよし度 アップ！うれしい〜' : 'やったね！えらい！';
+  document.getElementById('cat').innerHTML = catArt('cheer'); // お祝い顔
   clearTimeout(celebTimer);
-  celebTimer = setTimeout(()=>{ b.textContent = speech(); }, 1800);
+  celebTimer = setTimeout(render, 1800); // 少ししたら通常の気分に戻す
 }
 
 /* ---------- 描画 ---------- */
 function render(){
-  // たま
-  const mode = (state.energy === 'ugokenai') ? 'sleep' : 'sit';
+  // たま（気分で表情が変わる）
   const catEl = document.getElementById('cat');
-  catEl.innerHTML = catArt(mode);
+  catEl.innerHTML = catArt(catMood());
 
   // セリフ
   document.getElementById('bubble').textContent = speech();

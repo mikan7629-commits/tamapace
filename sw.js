@@ -1,4 +1,4 @@
-const CACHE = 'tamapace-v1';
+const CACHE = 'tamapace-v2';
 const ASSETS = [
   './',
   './index.html',
