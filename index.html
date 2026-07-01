@@ -425,8 +425,8 @@ function pickTask(excludeId){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 
-function cap(){ return ENERGY[state.energy].cap; }
-function isEnough(){ return state.doneToday.length >= cap(); }
+function cap(){ return state.energy ? ENERGY[state.energy].cap : 0; }
+function isEnough(){ return !!state.energy && state.doneToday.length >= cap(); }
 
 function stageInfo(){
   let idx = 0;
@@ -492,8 +492,8 @@ function isNight(){ const h = new Date().getHours(); return h >= NIGHT_FROM || h
 /* ---------- たまの表情（気分） ---------- */
 function catMood(){
   if(state.energy === 'ugokenai') return 'sleep';
-  if(isEnough() && !forceOne) return isNight() ? 'night' : 'proud';
   if(!state.energy) return isNight() ? 'night' : 'normal';
+  if(isEnough() && !forceOne) return isNight() ? 'night' : 'proud';
   if(state.energy === 'genki') return 'happy';
   if(state.energy === 'shindoi') return 'tired';
   return 'normal'; // ふつう
@@ -502,8 +502,8 @@ function catMood(){
 /* ---------- セリフ ---------- */
 function speech(){
   if(state.energy === 'ugokenai') return 'きょうは やすむ日。それで えらい。';
-  if(isEnough() && !forceOne) return isNight() ? 'きょうも おつかれさま。ゆっくり休も 🌙' : 'きょうは もう十分。えらすぎる…！';
   if(!state.energy) return isNight() ? 'おつかれさま。そろそろ 休も 🌙' : 'きょうは どんな かんじ？';
+  if(isEnough() && !forceOne) return isNight() ? 'きょうも おつかれさま。ゆっくり休も 🌙' : 'きょうは もう十分。えらすぎる…！';
   if(state.doneToday.length > 0) return 'いいかんじ。むりせず いこ〜';
   return 'むりせず、ひとつだけ いこ〜';
 }
